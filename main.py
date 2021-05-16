@@ -82,7 +82,7 @@ class Car:
 
 
 
-    def movement(self, keys_pressed):
+    def input(self, keys_pressed):
         #------------------------------------TURNING---------------------------------------
         if keys_pressed[pygame.K_LEFT] or keys_pressed[pygame.K_RIGHT]:
             if keys_pressed[pygame.K_LEFT]:
@@ -204,7 +204,7 @@ def main():
                 run = False
 
         keys_pressed = pygame.key.get_pressed()
-        car.movement(keys_pressed)
+        car.input(keys_pressed)
         print(car.t_rot)
         car.update()
 
