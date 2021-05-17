@@ -4,6 +4,7 @@ from lines import Line
 
 class Car:
     def __init__(self, x, y):
+        self.spawn_point = (x, y)
         self.x = x
         self.y = y
         self.w = 20
@@ -132,6 +133,13 @@ class Car:
         for wall in walls:
             if self.front.is_colliding(wall) or self.right.is_colliding(wall) or self.back.is_colliding(wall) or self.left.is_colliding(wall):
                 print('collision!')
+                self.x = self.spawn_point[0]
+                self.y = self.spawn_point[1]
+                self.rot = 0
+                self.spd = 0
+                self.f_tire = (self.x + lengthdir_x(self.l//2, self.rot), self.y + lengthdir_y(self.l//2, self.rot))
+                self.b_tire = (self.x - lengthdir_x(self.l//2, self.rot), self.y - lengthdir_y(self.l//2, self.rot))
+
 
             #rays
             f_collide = self.ray_front.is_colliding(wall)
