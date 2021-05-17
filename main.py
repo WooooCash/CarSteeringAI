@@ -46,8 +46,11 @@ def generate_track():
 
 def main():
     clock = pygame.time.Clock()
-    car = Car(625, 55)
     walls = generate_track()
+    spawn_x = (walls[22].p1[0] - walls[21].p1[0])/2 + walls[21].p1[0]
+    spawn_y = (walls[22].p1[1] - walls[21].p1[1])/2 + walls[21].p1[1]
+    car = Car(spawn_x, spawn_y)
+
     run = True
     while run:
         clock.tick(FPS)
@@ -60,12 +63,18 @@ def main():
         # print(car.t_rot)
 
         car.update()
-        car.collision(walls)
         WIN.fill(WHITE)
 
-        for w in walls:
-            w.draw(WIN, BLACK)
+
+
+        for i, w in enumerate(walls):
+            if i in [21, 22]:
+                w.draw(WIN, RED)
+            else:
+                w.draw(WIN, BLACK)
+
         car.draw(WIN)
+        car.collision(WIN, walls)
         pygame.display.update()
 
 if __name__ == "__main__":

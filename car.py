@@ -15,6 +15,7 @@ class Car:
 
         self.spd = 0
         self.spd_max = 5
+        self.ray_len = 200
 
         self.c_fl, self.c_fr, self.c_bl, self.c_br = calc_corners(self.x, self.y, self.w, self.l, self.rot)
 
@@ -26,6 +27,10 @@ class Car:
         self.back = Line(*self.c_br, *self.c_bl, False)
         self.left = Line(*self.c_bl, *self.c_fl, False)
 
+
+        self.ray_front = Line(self.x, self.y, self.x+lengthdir_x(self.ray_len, self.rot), self.y+lengthdir_y(self.ray_len, self.rot))
+        self.ray_left = Line(self.x, self.y, self.x+lengthdir_x(self.ray_len, norm_angle(self.rot + 45)), self.y+lengthdir_y(self.ray_len, norm_angle(self.rot + 45)))
+        self.ray_right = Line(self.x, self.y, self.x+lengthdir_x(self.ray_len, norm_angle(self.rot - 45)), self.y+lengthdir_y(self.ray_len, norm_angle(self.rot - 45)))
 
 
 
@@ -114,12 +119,51 @@ class Car:
         self.back = Line(*self.c_br, *self.c_bl, False)
         self.left = Line(*self.c_bl, *self.c_fl, False)
 
+        self.ray_front = Line(self.x, self.y, self.x+lengthdir_x(self.ray_len, self.rot), self.y+lengthdir_y(self.ray_len, self.rot))
+        self.ray_left = Line(self.x, self.y, self.x+lengthdir_x(self.ray_len, norm_angle(self.rot + 45)), self.y+lengthdir_y(self.ray_len, norm_angle(self.rot + 45)))
+        self.ray_right = Line(self.x, self.y, self.x+lengthdir_x(self.ray_len, norm_angle(self.rot - 45)), self.y+lengthdir_y(self.ray_len, norm_angle(self.rot - 45)))
+
+
         # print(f'speed: {self.spd}, rotation: {self.rot}')
 
-    def collision(self, walls):
+    def collision(self, win, walls):
+        ray_dist = [self.ray_len + 100, self.ray_len + 100, self.ray_len + 100]
+        ray_points = [None, None, None]
         for wall in walls:
             if self.front.is_colliding(wall) or self.right.is_colliding(wall) or self.back.is_colliding(wall) or self.left.is_colliding(wall):
                 print('collision!')
+
+            #rays
+            f_collide = self.ray_front.is_colliding(wall)
+            if f_collide:
+                temp = point_distance(self.x, self.y, *f_collide)
+
+                if ray_dist[0] > temp:
+                    ray_dist[0] = temp
+                    ray_points[0] = f_collide
+            l_collide = self.ray_left.is_colliding(wall)
+            if l_collide:
+                temp = point_distance(self.x, self.y, *l_collide)
+
+                if ray_dist[1] > temp:
+                    ray_dist[1] = temp
+                    ray_points[1] = l_collide
+            r_collide = self.ray_right.is_colliding(wall)
+            if r_collide:
+                temp = point_distance(self.x, self.y, *r_collide)
+
+                if ray_dist[2] > temp:
+                    ray_dist[2] = temp
+                    ray_points[2] = r_collide
+        if ray_points[0] is not None:
+            pygame.draw.circle(win, AQUA, ray_points[0], 6)
+        if ray_points[1] is not None:
+            pygame.draw.circle(win, AQUA, ray_points[1], 6)
+        if ray_points[2] is not None:
+            pygame.draw.circle(win, AQUA, ray_points[2], 6)
+        print(f'front dist: {ray_dist[0]}')
+
+
 
     def draw(self, win):
         # pygame.draw.circle(WIN, AQUA, (self.x, self.y), 5)
@@ -136,6 +180,10 @@ class Car:
         self.right.draw(win, AQUA)
         self.back.draw(win, AQUA)
         self.left.draw(win, AQUA)
+
+        self.ray_front.draw(win, RED)
+        self.ray_left.draw(win, RED)
+        self.ray_right.draw(win, RED)
 
         draw_box(win, front_tire_left, RED)
         draw_box(win, front_tire_right, RED)

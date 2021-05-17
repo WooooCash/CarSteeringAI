@@ -22,6 +22,9 @@ def norm_angle(angle):
 def point_direction(x1, y1, x2, y2):
     return math.atan2((y1-y2), (x2-x1)) * 180 / math.pi
 
+def point_distance(x1, y1, x2, y2):
+    return math.sqrt((x2-x1)**2 + (y2-y1)**2)
+
 def calc_corners(x, y, w, l, rot):
     theta = math.atan2((w//2), (l//2)) * 180 / math.pi
     length = math.sqrt((w//2)**2 + (l//2)**2)
