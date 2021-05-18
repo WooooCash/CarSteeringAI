@@ -49,7 +49,7 @@ def main():
     walls = generate_track()
     spawn_x = (walls[22].p1[0] - walls[21].p1[0])/2 + walls[21].p1[0]
     spawn_y = (walls[22].p1[1] - walls[21].p1[1])/2 + walls[21].p1[1]
-    car = Car(spawn_x, spawn_y)
+    car = Car(spawn_x, spawn_y, 270)
 
     run = True
     while run:
