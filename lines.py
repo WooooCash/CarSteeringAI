@@ -6,8 +6,8 @@ class Line:
         self.p2 = (x2, y2)
         self.wall = wall
 
-    def draw(self, win, color):
-        pygame.draw.line(win, color, self.p1, self.p2, 3)
+    def draw(self, win, color, w=3):
+        pygame.draw.line(win, color, self.p1, self.p2, w)
 
     def is_colliding(self, other):
         s10_x = self.p2[0] - self.p1[0]

@@ -5,6 +5,7 @@ AQUA = (0, 255, 255)
 BLACK = (0, 0 ,0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
+PURPLE = (255, 0, 255)
 
 def lengthdir_x(length, angle):
     angle = angle * math.pi / 180
@@ -24,6 +25,12 @@ def point_direction(x1, y1, x2, y2):
 
 def point_distance(x1, y1, x2, y2):
     return math.sqrt((x2-x1)**2 + (y2-y1)**2)
+
+def range_map(val, min_a, max_a, min_b, max_b):
+    return (max_b - min_b)*(val - min_a)/(max_a - min_a) + min_b
+    # return(1-((val-min_a)/(max_a-min_a)))*min_b + ((val-min_a)/(max_a-min_a))*max_b
+
+
 
 def calc_corners(x, y, w, l, rot):
     theta = math.atan2((w//2), (l//2)) * 180 / math.pi
