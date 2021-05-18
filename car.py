@@ -5,18 +5,19 @@ from lines import Line
 class Car:
     def __init__(self, x, y, rot):
         self.spawn_point = (x, y)
+        self.spawn_rot = rot
         self.x = x
         self.y = y
-        self.w = 20
-        self.l = 50
+        self.w = 10
+        self.l = 20
         self.rot = rot
 
         self.t_rot = 0
-        self.t_maxrot = 50
+        self.t_maxrot = 30
 
         self.spd = 0
-        self.spd_max = 5
-        self.ray_len = 200
+        self.spd_max = 3
+        self.ray_len = 100
 
         self.c_fl, self.c_fr, self.c_bl, self.c_br = calc_corners(self.x, self.y, self.w, self.l, self.rot)
 
@@ -39,6 +40,8 @@ class Car:
         #------------------------------------TURNING---------------------------------------
         if keys_pressed[pygame.K_LEFT] or keys_pressed[pygame.K_RIGHT]:
             if keys_pressed[pygame.K_LEFT]:
+                if self.t_rot < 0:
+                    self.t_rot = 0
                 # if self.t_rot < self.t_maxrot:
                 #     self.t_rot += 10
                 if self.t_rot < self.t_maxrot * (1-abs(self.spd)/(self.spd_max+5)):
@@ -46,6 +49,8 @@ class Car:
                 else:
                     self.t_rot = self.t_maxrot * (1-abs(self.spd)/(self.spd_max+5))
             if keys_pressed[pygame.K_RIGHT]:
+                if self.t_rot > 0:
+                    self.t_rot = 0
                 # if self.t_rot > -self.t_maxrot:
                 #     self.t_rot -= 10
                 if self.t_rot > -self.t_maxrot * (1-abs(self.spd)/(self.spd_max+5)):
@@ -53,12 +58,13 @@ class Car:
                 else:
                     self.t_rot = -self.t_maxrot * (1-abs(self.spd)/(self.spd_max+5))
         else:
-            if self.t_rot >= 5:
-                self.t_rot -= 5
-            elif self.t_rot <= -5:
-                self.t_rot += 5
-            else:
-                self.t_rot = 0
+            # if self.t_rot >= 5:
+            #     self.t_rot -= 5
+            # elif self.t_rot <= -5:
+            #     self.t_rot += 5
+            # else:
+            #     self.t_rot = 0
+            self.t_rot = 0
 
 
         #-----------------------------------ACCELERATION--------------------------------
@@ -138,7 +144,7 @@ class Car:
                 print('collision!')
                 self.x = self.spawn_point[0]
                 self.y = self.spawn_point[1]
-                self.rot = 0
+                self.rot = self.spawn_rot
                 self.spd = 0
                 self.f_tire = (self.x + lengthdir_x(self.l//2, self.rot), self.y + lengthdir_y(self.l//2, self.rot))
                 self.b_tire = (self.x - lengthdir_x(self.l//2, self.rot), self.y - lengthdir_y(self.l//2, self.rot))
@@ -153,7 +159,7 @@ class Car:
                         ray_dist[i] = temp_dist
                         ray_points[i] = collisions[i]
 
-        print(ray_dist)
+        # print(ray_dist)
         for ray_point in ray_points:
             if ray_point is not None:
                 pygame.draw.circle(win, AQUA, ray_point, 6)
