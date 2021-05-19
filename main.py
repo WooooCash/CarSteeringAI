@@ -2,7 +2,7 @@ import pygame
 import math
 from helpers import *
 from car import Car
-from lines import Line
+from lines import *
 from perlin_noise import PerlinNoise as pn
 import numpy as np
 import random
@@ -17,7 +17,7 @@ FPS = 60
 # def generate_track():
 #     x = WIDTH//2
 #     y = HEIGHT//2
-#     # print('track generated')
+#     # ('track generated')
 #     values = np.linspace(0, 2*math.pi, 14)
 #     inner_track = []
 #     outer_track = []
@@ -47,6 +47,7 @@ def generate_track_noise():
     noise = pn(octaves=4)
     noise_max = 2
     val_range = np.linspace(0, 2*math.pi, 60)
+    track_width = 120
 
     checkpoints = []
     inner_track = []
@@ -59,11 +60,11 @@ def generate_track_noise():
         x = WIDTH//2 + r * math.cos(p)
         y = HEIGHT//2 + r * math.sin(p)
 
-        x_inner = WIDTH//2 + (r-50) * math.cos(p)
-        y_inner = HEIGHT//2 + (r-50) * math.sin(p)
+        x_inner = WIDTH//2 + (r-track_width/2) * math.cos(p)
+        y_inner = HEIGHT//2 + (r-track_width/2) * math.sin(p)
 
-        x_outer = WIDTH//2 + (r+50) * math.cos(p)
-        y_outer = HEIGHT//2 + (r+50) * math.sin(p)
+        x_outer = WIDTH//2 + (r+track_width/2) * math.cos(p)
+        y_outer = HEIGHT//2 + (r+track_width/2) * math.sin(p)
 
         checkpoints.append((x,y))
         inner_track.append((x_inner, y_inner))
@@ -86,7 +87,9 @@ def main():
     # spawn_x = (walls[22].p1[0] - walls[21].p1[0])/2 + walls[21].p1[0]
     # spawn_y = (walls[22].p1[1] - walls[21].p1[1])/2 + walls[21].p1[1]
     # car = Car(spawn_x, spawn_y, 270)
-
+    v = Vector(5, 10)
+    v = v.normalized()
+    print(f'x: {v.x} y: {v.y}')
     checkpoints, walls = generate_track_noise()
     car = Car(checkpoints[0][0], checkpoints[0][1], -90)
     run = True
@@ -101,9 +104,12 @@ def main():
         # print(car.t_rot)
 
         car.update()
+        print(car.forward_velocity().magnitude())
         WIN.fill(WHITE)
         for w in walls:
             w.draw(WIN, BLACK)
+        start = checkpoints[0]
+        end = checkpoints[len(checkpoints)-1]
         for c in checkpoints:
             pygame.draw.circle(WIN, PURPLE, c, 4)
 

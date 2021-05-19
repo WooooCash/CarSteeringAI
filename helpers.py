@@ -1,11 +1,14 @@
 import pygame
 import math
+import numpy as np
 
 AQUA = (0, 255, 255)
 BLACK = (0, 0 ,0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 PURPLE = (255, 0, 255)
+
+epsilon = 0.01
 
 def lengthdir_x(length, angle):
     angle = angle * math.pi / 180
@@ -21,7 +24,7 @@ def norm_angle(angle):
     return angle
 
 def point_direction(x1, y1, x2, y2):
-    return math.atan2((y1-y2), (x2-x1)) * 180 / math.pi
+    return math.atan2((y1-y2), (x1-x2)) * 180 / math.pi
 
 def point_distance(x1, y1, x2, y2):
     return math.sqrt((x2-x1)**2 + (y2-y1)**2)
@@ -30,7 +33,10 @@ def range_map(val, min_a, max_a, min_b, max_b):
     return (max_b - min_b)*(val - min_a)/(max_a - min_a) + min_b
     # return(1-((val-min_a)/(max_a-min_a)))*min_b + ((val-min_a)/(max_a-min_a))*max_b
 
-
+def angle_diff(a, b):
+    a %= 360
+    b %= 360
+    return abs(a-b)
 
 def calc_corners(x, y, w, l, rot):
     theta = math.atan2((w//2), (l//2)) * 180 / math.pi
@@ -49,3 +55,6 @@ def draw_box(win, box, color):
     pygame.draw.line(win, color, p2, p4, 1)
     pygame.draw.line(win, color, p4, p3, 1)
     pygame.draw.line(win, color, p3, p1, 1)
+
+def dot(a, b):
+    return np.dot([a.x, a.y], [b.x, b.y])

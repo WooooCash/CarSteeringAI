@@ -1,4 +1,5 @@
 import pygame
+import math
 
 class Line:
     def __init__(self, x1, y1, x2, y2, wall=False):
@@ -37,3 +38,38 @@ class Line:
 
 
         return intersection_point
+
+class Vector():
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def add(self, vec):
+        self.x += vec.x
+        self.y += vec.y
+
+    def set(self, x, y):
+        self.x = x
+        self.y = y
+
+    def set_by_vec(self, vec):
+        self.x = vec.x
+        self.y = vec.y
+
+    def magnitude(self):
+        return math.sqrt(self.x**2 + self.y**2)
+
+    def angle(self):
+        return math.atan2(self.y, -self.x) * 180 / math.pi
+
+    def normalized(self):
+        magnitude = self.magnitude()
+        if magnitude != 0:
+            x = self.x / magnitude
+            y = self.y / magnitude
+            return Vector(x, y)
+        return Vector(0, 0)
+
+    def mult(self, scalar):
+        self.x *= scalar
+        self.y *= scalar
