@@ -1,0 +1,4 @@
+perlin_noise==1.7
+joblib==1.0.1
+numpy==1.19.5
+pygame==2.0.1
