@@ -38,8 +38,8 @@ class Visualizer():
         for i, layer in enumerate(self.weights):
             for j, node in enumerate(layer):
                 for k, weight in enumerate(node):
-                    red = range_map(self.car.layers[i][j][k], -1.5, 1.5, 255, 0)
-                    green = range_map(self.car.layers[i][j][k], -1.5, 1.5, 0, 255)
+                    red = range_map(self.car.layers[i][j][k], -2, 2, 255, 0)
+                    green = range_map(self.car.layers[i][j][k], -2, 2, 0, 255)
                     print('lol', self.car.layers[i][j][k])
                     print(red, green)
                     p1 = self.locations[i][j]
@@ -88,6 +88,7 @@ class Visualizer():
                     # print(self.weights[i][j][k])
                     self.w_colors[i][j][k] = (red, green, 0)
 
+
     def draw(self, win):
         for i, layer in enumerate(self.locations):
             # print('len of locations', len(self.locations))
@@ -113,4 +114,5 @@ class Visualizer():
             for j, node in enumerate(layer):
                 if i != len(self.locations)-1:
                     for k, weight in enumerate(self.car.layers[i][j]):
+                        # print(self.w_colors[i][j][k])
                         self.weights[i][j][k].draw(win, self.w_colors[i][j][k], 1)

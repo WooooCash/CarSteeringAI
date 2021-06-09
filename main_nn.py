@@ -42,15 +42,10 @@ def update_cars(c, walls, c_lines):
 
 def main():
     clock = pygame.time.Clock()
-    # walls = generate_track()
-    # spawn_x = (walls[22].p1[0] - walls[21].p1[0])/2 + walls[21].p1[0]
-    # spawn_y = (walls[22].p1[1] - walls[21].p1[1])/2 + walls[21].p1[1]
-    # car = Car(spawn_x, spawn_y, 270)
     v = Vector(5, 10)
     v = v.normalized()
     print(f'x: {v.x} y: {v.y}')
     checkpoints, c_lines, walls = generate_track_noise(WIDTH, HEIGHT)
-    # car = Car(checkpoints[0][0], checkpoints[0][1], -90)
     car_creator = lambda : Car(checkpoints[0][0], checkpoints[0][1], -90, drift_factor = 0.99, draw_rays = True)
     scoring_function = lambda car : calculate_fitness(car)
 
@@ -74,7 +69,7 @@ def main():
         ecosystem.population[0] = best
     print(best.layers[0])
     cores = 1
-
+    print(best.layers)
     visualizer = Visualizer(WIDTH//2, HEIGHT//2, best)
     print(visualizer.locations)
     run = True
@@ -90,7 +85,9 @@ def main():
                 if event.key == pygame.K_q:
                     checkpoints, c_lines,  walls = generate_track_noise(WIDTH, HEIGHT)
                 if event.key == pygame.K_f:
-                    fps = 360 if fps < 360 else 60
+                    fps -= 60
+                if event.key == pygame.K_g:
+                    fps += 60
                 if event.key == pygame.K_s:
                     save_best(best)
                 if event.key == pygame.K_k:
@@ -99,8 +96,7 @@ def main():
                 if event.key == pygame.K_j:
                     cores -= 1
                     if cores < 1: cores = 1
-                # if event.key == pygame.K_l:
-                #     load_best()
+
 
 
 
@@ -132,7 +128,7 @@ def main():
                 if c.checkpoint_count == 2*len(checkpoints):
                     two_laps = True
                 c.draw(WIN)
-            visualizer.draw(WIN)
+            # visualizer.draw(WIN)
             drift_text = font.render("Gen: " + str(cur_gen), 1, BLACK)
             WIN.blit(drift_text, (10, 10))
 

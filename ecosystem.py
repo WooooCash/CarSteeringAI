@@ -28,8 +28,8 @@ class Ecosystem():
         for i in range(self.population_size):
             parent_1_idx = i % self.holdout
             if self.mating:
-                # parent_2_idx = min(self.population_size - 1, int(np.random.exponential(self.holdout)))
-                parent_2_idx = np.random.random_integers(0, self.population_size-1)
+                parent_2_idx = min(self.population_size - 1, int(np.random.exponential(self.holdout)))
+                # parent_2_idx = np.random.random_integers(0, self.population_size-1)
             else:
                 parent_2_idx = parent_1_idx
             # print(f'p1 layers: {[self.population[parent_1_idx].layers[x].shape for x in range(len(self.population[parent_1_idx].layers))]}')
