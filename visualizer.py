@@ -6,6 +6,7 @@ import numpy as np
 
 class Visualizer():
     def __init__(self, x, y, car):
+        print('generowanie wizualizacji...')
         self.car = car
         self.x = x
         self.y = y
@@ -14,7 +15,6 @@ class Visualizer():
         self.locations = []
         for i, layer in enumerate(car.layers):
             self.locations.append([None]*len(layer))
-            print(len(layer))
             x = self.x - len(car.layers)*self.n_size//2*15 + i*self.n_size*15
             for j, node in enumerate(layer):
                 y = self.y - len(layer)*self.n_size//2*3 + j*self.n_size*3
@@ -28,7 +28,6 @@ class Visualizer():
 
         self.weights = []
         self.w_colors = []
-        print('shape', self.car.layers[0].shape)
         for layer in self.car.layers:
             arr = np.empty(shape=layer.shape + (0,)).tolist()
             arr2 = np.empty(shape=layer.shape + (0,)).tolist()
@@ -40,35 +39,12 @@ class Visualizer():
                 for k, weight in enumerate(node):
                     red = range_map(self.car.layers[i][j][k], -2, 2, 255, 0)
                     green = range_map(self.car.layers[i][j][k], -2, 2, 0, 255)
-                    print('lol', self.car.layers[i][j][k])
-                    print(red, green)
                     p1 = self.locations[i][j]
                     p2 = self.locations[i+1][k]
                     line = Line(*p1, *p2)
-                    print(type(line))
                     self.weights[i][j][k] = line
-                    print(type(self.weights[i][j][k]))
-                    print(self.weights[i][j][k])
                     self.w_colors[i][j][k] = (red, green, 0)
-        # print(self.weights)
-        # print(type(self.weights[0][0][0]))
-        # for i, layer in enumerate(self.locations):
-        #     self.weights.append([]*(len(self.locations)-1))
-        #     self.w_colors.append([]*(len(self.locations)-1))
-        #     for j, node in enumerate(layer):
-        #         self.weights[i].append([None]*len(layer))
-        #         self.w_colors[i].append([None]*len(layer))
-        #         if i != len(self.locations)-1:
-        #             print(i, j)
-        #             for k, weight in enumerate(self.car.layers[i][j]):
-        #                 red = range_map(self.car.layers[i][j][k], -1.5, 1.5, 255, 0)
-        #                 green = range_map(self.car.layers[i][j][k], -1.5, 1.5, 0, 255)
-        #                 print('lol', self.car.layers[i][j][k])
-        #                 print(red, green)
-        #                 p1 = self.locations[i][j]
-        #                 p2 = self.locations[i+1][k]
-        #                 self.weights[i][j][k] = Line(*p1, *p2)
-        #                 self.w_colors[i][j][k] = (red, green, 0)
+        print('generowanie wizualizacji zakończone')
 
     def new_best(self, best):
         self.car = best

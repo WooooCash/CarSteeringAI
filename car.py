@@ -44,7 +44,6 @@ class Car:
 
         self.rays = generate_rays(self.x, self.y, self.ray_len, self.rot) #[left, front, right]
         self.ray_dists = [self.ray_len for _ in self.rays]
-        print(self.ray_dists)
         # self.rays.append(Line(self.x, self.y, self.x+lengthdir_x(self.ray_len, self.rot), self.y+lengthdir_y(self.ray_len, self.rot)))
         # self.rays.append(Line(self.x, self.y, self.x+lengthdir_x(self.ray_len, norm_angle(self.rot - 45)), self.y+lengthdir_y(self.ray_len, norm_angle(self.rot - 45))))
 
@@ -305,14 +304,6 @@ class Car:
                 if self.front.is_colliding(wall) or self.right.is_colliding(wall) or self.back.is_colliding(wall) or self.left.is_colliding(wall):
                     collided = True
                     self.dead = True
-                    print('collided lol')
-                    # print('collision!')
-                    # self.x = self.spawn_point[0]
-                    # self.y = self.spawn_point[1]
-                    # self.rot = self.spawn_rot
-                    # self.spd = 0
-                    # self.f_tire = (self.x + lengthdir_x(self.l//2, self.rot), self.y + lengthdir_y(self.l//2, self.rot))
-                    # self.b_tire = (self.x - lengthdir_x(self.l//2, self.rot), self.y - lengthdir_y(self.l//2, self.rot))
 
                 #rays
                 collisions = [ray.is_colliding(wall) for ray in self.rays]
@@ -367,6 +358,7 @@ class Car:
             self.back.draw(win, self.col)
             self.left.draw(win, self.col)
 
+            
             if self.draw_rays:
                 for ray in self.rays:
                     ray.draw(win, RED, 1)
