@@ -10,17 +10,18 @@ import random
 from time import sleep
 from joblib import Parallel, delayed
 from visualizer import Visualizer
+import tkinter as tk
+from tkinter import simpledialog
 pygame.init()
 pygame.font.init()
 
-font = pygame.font.SysFont('comicsans', 40)
+font = pygame.font.SysFont('comicsans', 30)
 WIDTH, HEIGHT = 1260, 800
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("AI Steering")
 
 def save_best(best):
     np.save('layers', np.array(best.layers))
-    print([b.shape for b in best.biases])
     np.savez('biases', np.array(best.biases[0]), np.array(best.biases[1]), np.array(best.biases[2]), np.array(best.biases[3]))
 
 def load_best():
@@ -42,40 +43,66 @@ def update_cars(c, walls, c_lines):
 
 def main():
     clock = pygame.time.Clock()
-    v = Vector(5, 10)
-    v = v.normalized()
-    print(f'x: {v.x} y: {v.y}')
+    fps = 120
+
     checkpoints, c_lines, walls = generate_track_noise(WIDTH, HEIGHT)
     car_creator = lambda : Car(checkpoints[0][0], checkpoints[0][1], -90, drift_factor = 0.99, draw_rays = True)
     scoring_function = lambda car : calculate_fitness(car)
 
-    ecosystem = Ecosystem(car_creator, scoring_function, population_size=20, holdout=0.1, mating=True)
-    fps = 60
-    generations = 200
+    mode = ''
+    mod = 0
+
+
+
+
+    ROOT = tk.Tk()
+    ROOT.withdraw()
+
+    choice = simpledialog.askinteger(title="Tryb", prompt="Wybierz tryb\n1-trenowanie\n2-pokazowy")
+    # print('Wybierz Tryb')
+    # print('1 - trenowania')
+    # print('2 - pokazowy')
+    # choice = input('Wybor trybu: ')
+    if choice == 1:
+        mode = 'train'
+        # choice2 = input('czy chcesz załadować samochodzik z pliku do początkowej generacji? (t/n)')
+        choice2 = simpledialog.askstring(title="Tryb", prompt="czy chcesz załadować samochodzik z pliku do początkowej generacji? (t/n)")
+        if choice2 == 't':
+            mod = 1
+        elif choice2 == 'n':
+            mod = 0
+        else:
+            print('Nie poprawny input. Zakonczenie programu...')
+    elif choice == 2:
+        mode = 'best'
+    else:
+        print('Nie poprawny input. Zakonczenie programu...')
+
+    ecosystem = None
+    if mode == 'train':
+        ecosystem = Ecosystem(car_creator, scoring_function, population_size=20, holdout=0.1, mating=True)
     cur_gen = 1
+
     draw = True
     best = None
 
-    mode = 'best'
-    mod = 1
+    if mode == 'best' or mod == 1:
+        bl, bb = load_best()
+        best = car_creator()
+        best.layers = bl
+        filenames = ['arr_0', 'arr_1', 'arr_2', 'arr_3']
+        for i in range(4):
+            best.biases[i] = bb[filenames[i]]
+        if mod == 1:
+            ecosystem.population[0] = best
 
-    bl, bb = load_best()
-    best = car_creator()
-    best.layers = bl
-    filenames = ['arr_0', 'arr_1', 'arr_2', 'arr_3']
-    for i in range(4):
-        best.biases[i] = bb[filenames[i]]
-    if mod == 1:
-        ecosystem.population[0] = best
-    print(best.layers[0])
     cores = 1
-    print(best.layers)
-    visualizer = Visualizer(WIDTH//2, HEIGHT//2, best)
-    print(visualizer.locations)
+    visualizer = None
+    if best is not None:
+        visualizer = Visualizer(WIDTH//2, HEIGHT//2, best)
     run = True
     while run:
         clock.tick(fps)
-        print(fps)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -86,6 +113,7 @@ def main():
                     checkpoints, c_lines,  walls = generate_track_noise(WIDTH, HEIGHT)
                 if event.key == pygame.K_f:
                     fps -= 60
+                    if fps < 60: fps = 60
                 if event.key == pygame.K_g:
                     fps += 60
                 if event.key == pygame.K_s:
@@ -96,6 +124,12 @@ def main():
                 if event.key == pygame.K_j:
                     cores -= 1
                     if cores < 1: cores = 1
+                if event.key == pygame.K_r:
+                    if mode == 'train':
+                        for c in ecosystem.population:
+                            c.draw_rays = not c.draw_rays
+                    elif mode == 'best':
+                        best.draw_rays = not best.draw_rays
 
 
 
@@ -113,14 +147,6 @@ def main():
                     pygame.draw.circle(WIN, PURPLE, c, 4)
 
         if mode == 'train':
-            # for c in ecosystem.population:
-            #     # print(c.x, c.y)
-            #     c.collision(WIN, walls, c_lines)
-            #     c.nn_input()
-            #     c.update()
-            #     if draw:
-            #         c.draw(WIN)
-
             ecosystem.population = Parallel(n_jobs=cores)(delayed(update_cars)(c, walls, c_lines) for c in ecosystem.population)
 
             two_laps = False
@@ -128,15 +154,18 @@ def main():
                 if c.checkpoint_count == 2*len(checkpoints):
                     two_laps = True
                 c.draw(WIN)
-            # visualizer.draw(WIN)
+            if best is not None:
+                visualizer.draw(WIN)
+
             drift_text = font.render("Gen: " + str(cur_gen), 1, BLACK)
             WIN.blit(drift_text, (10, 10))
 
 
 
             if all([car.dead for car in ecosystem.population]) or two_laps:
-                print('all dead')
                 best = ecosystem.generation()
+                if visualizer is None:
+                    visualizer = Visualizer(WIDTH//2, HEIGHT//2, best)
                 if two_laps:
                     save_best(best)
                     checkpoints, c_lines,  walls = generate_track_noise(WIDTH, HEIGHT)
@@ -156,6 +185,42 @@ def main():
             if best.dead:
                 best.spawn_point = (checkpoints[0][0], checkpoints[0][1])
                 best.reset()
+
+
+        fps_text = font.render("Game Speed: " + str(fps), 1, BLACK)
+        fps_text2 = font.render("Press 'F' to decrease", 1, BLACK)
+        fps_text3 = font.render("Press 'G' to increase", 1, BLACK)
+        textblock = []
+        for i in range(0, 3):
+            textblock.append(i*fps_text.get_height() + (i+1)*10)
+        WIN.blit(fps_text, (10, textblock[0]))
+        WIN.blit(fps_text2, (10, textblock[1]))
+        WIN.blit(fps_text3, (10, textblock[2]))
+        prev_height = textblock[-1]
+
+        cores_text = font.render("Cores: " + str(cores), 1, BLACK)
+        cores_text2 = font.render("Press 'J' to decrease", 1, BLACK)
+        cores_text3 = font.render("Press 'K' to increase", 1, BLACK)
+        textblock = []
+        for i in range(0, 3):
+            textblock.append(prev_height + 50 +i*fps_text.get_height() + (i+1)*10)
+        WIN.blit(cores_text, (10, textblock[0]))
+        WIN.blit(cores_text2, (10, textblock[1]))
+        WIN.blit(cores_text3, (10, textblock[2]))
+        prev_height = textblock[-1]
+
+        drawing_text = font.render("Press 'D' to toggle drawing", 1, BLACK)
+        rays_text = font.render("Press 'R' to toggle rays", 1, BLACK)
+        textblock = []
+        for i in range(0, 2):
+            textblock.append(prev_height + 400 +i*fps_text.get_height() + (i+1)*10)
+        WIN.blit(drawing_text, (10, textblock[0]))
+        WIN.blit(rays_text, (10, textblock[1]))
+        prev_height = textblock[-1]
+
+        generate_new_map = font.render("Press 'Q' to generate a new map", 1, BLACK)
+        WIN.blit(generate_new_map, (10, prev_height + 50 +i*fps_text.get_height() + (i+1)*10))
+
         pygame.display.update()
 
 if __name__ == "__main__":
