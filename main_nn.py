@@ -12,6 +12,7 @@ from joblib import Parallel, delayed
 from visualizer import Visualizer
 import tkinter as tk
 from tkinter import simpledialog
+import matplotlib.pyplot as plt
 pygame.init()
 pygame.font.init()
 
@@ -52,7 +53,7 @@ def main():
     mode = ''
     mod = 0
 
-
+    cores = 1
 
 
     ROOT = tk.Tk()
@@ -65,6 +66,7 @@ def main():
     # choice = input('Wybor trybu: ')
     if choice == 1:
         mode = 'train'
+        cores = 4
         # choice2 = input('czy chcesz załadować samochodzik z pliku do początkowej generacji? (t/n)')
         choice2 = simpledialog.askstring(title="Tryb", prompt="czy chcesz załadować samochodzik z pliku do początkowej generacji? (t/n)")
         if choice2 == 't':
@@ -96,10 +98,12 @@ def main():
         if mod == 1:
             ecosystem.population[0] = best
 
-    cores = 1
+
     visualizer = None
     if best is not None:
         visualizer = Visualizer(WIDTH//2, HEIGHT//2, best)
+
+    avg_fitness = [0]
     run = True
     while run:
         clock.tick(fps)
@@ -134,6 +138,7 @@ def main():
 
 
 
+
         WIN.fill(WHITE)
         if draw:
             for w in walls:
@@ -153,17 +158,21 @@ def main():
             for c in ecosystem.population:
                 if c.checkpoint_count == 2*len(checkpoints):
                     two_laps = True
-                c.draw(WIN)
-            if best is not None:
+                if draw:
+                    c.draw(WIN)
+            if best is not None and draw:
                 visualizer.draw(WIN)
 
-            drift_text = font.render("Gen: " + str(cur_gen), 1, BLACK)
-            WIN.blit(drift_text, (10, 10))
+            gen_text = font.render("Gen: " + str(cur_gen), 1, BLACK)
+            WIN.blit(gen_text, (WIDTH - 10 - gen_text.get_width(), 10))
+            avg_fit_text = font.render("Avg Fitness: " + str(avg_fitness[-1]), 1, BLACK)
+            WIN.blit(avg_fit_text, (WIDTH - 10 - avg_fit_text.get_width(), 10 + 20 + gen_text.get_height()))
 
 
 
             if all([car.dead for car in ecosystem.population]) or two_laps:
-                best = ecosystem.generation()
+                best, avg = ecosystem.generation()
+                avg_fitness.append(avg)
                 if visualizer is None:
                     visualizer = Visualizer(WIDTH//2, HEIGHT//2, best)
                 if two_laps:
@@ -222,6 +231,15 @@ def main():
         WIN.blit(generate_new_map, (10, prev_height + 50 +i*fps_text.get_height() + (i+1)*10))
 
         pygame.display.update()
+
+    pygame.display.quit()
+    pygame.quit()
+    if len(avg_fitness) > 1:
+        x = np.arange(0, len(avg_fitness))
+        plt.xlabel('Generacje')
+        plt.ylabel('Średnia fitness')
+        plt.plot(x, avg_fitness)
+        plt.show()
 
 if __name__ == "__main__":
     main()

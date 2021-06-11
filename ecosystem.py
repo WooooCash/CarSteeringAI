@@ -22,6 +22,8 @@ class Ecosystem():
         rewards = [self.scoring_function(x) for x in self.population]
         # print(np.argsort(rewards)[::-1])
         print(rewards)
+        avg_fitness = sum(rewards)/len(rewards)
+        print(f'average fitness: {avg_fitness}')
         self.population = [self.population[x] for x in np.argsort(rewards)[::-1]]
 
         new_population = []
@@ -34,17 +36,15 @@ class Ecosystem():
                 parent_2_idx = parent_1_idx
             # print(f'p1 layers: {[self.population[parent_1_idx].layers[x].shape for x in range(len(self.population[parent_1_idx].layers))]}')
             # print(f'p2 layers: {[self.population[parent_2_idx].layers[x].shape for x in range(len(self.population[parent_2_idx].layers))]}')
-            print(f'len: {len(self.population)}, p1: {parent_1_idx}, p2: {parent_2_idx}')
             offspring = self.population[parent_1_idx].m8(self.population[parent_2_idx])
             new_population.append(offspring)
 
         if keep_best:
             new_population[-1] = self.population[0]
             new_population[-1].reset()
-            print(new_population[-1].dead)
-        print('new gen created')
+
         self.population = new_population
-        return self.population[-1]
+        return self.population[-1], avg_fitness
 
     def get_best_organism(self, repeats=1, include_reward=False):
         rewards = [np.mean(self.scoring_function(x)) for _ in range(repeats) for x in self.population]
