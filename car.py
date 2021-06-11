@@ -13,7 +13,6 @@ def generate_rays(x, y, len, rot):
 class Car:
     def __init__(self, x, y, rot, drift_factor = 0.99, draw_rays = True):
         self.spawn_point = (x, y)
-        print(self.spawn_point)
         self.spawn_rot = rot
         self.x = x
         self.y = y
@@ -358,7 +357,7 @@ class Car:
             self.back.draw(win, self.col)
             self.left.draw(win, self.col)
 
-            
+
             if self.draw_rays:
                 for ray in self.rays:
                     ray.draw(win, RED, 1)
