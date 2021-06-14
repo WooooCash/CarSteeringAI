@@ -16,6 +16,10 @@ WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("AI Steering")
 
 FPS = 60
+def calculate_fitness(car):
+    f = 0
+    f += sum([i for i in range(car.checkpoint_count)])
+    return f
 
 def main():
     clock = pygame.time.Clock()
@@ -73,12 +77,14 @@ def main():
         drift_text = font.render("Drift Factor: " + str(car.drift_factor), 1, BLACK)
         instr_text = font.render("Press 'D' to decrease", 1, BLACK)
         instr_text2 = font.render("Press 'F' to increase", 1, BLACK)
+        fitness_text = font.render("fitness: " + str(calculate_fitness(car)), 1, BLACK)
         text_y = []
-        for i in range(0, 3):
+        for i in range(0, 4):
             text_y.append(i*drift_text.get_height() + (i+1)*10)
         WIN.blit(drift_text, (10, text_y[0]))
         WIN.blit(instr_text, (10, text_y[1]))
         WIN.blit(instr_text2, (10, text_y[2]))
+        WIN.blit(fitness_text, (10, text_y[3] + 50))
         car.collision(walls, c_lines)
         print(car.checkpoint_count)
         pygame.display.update()
